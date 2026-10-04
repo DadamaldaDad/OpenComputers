@@ -60,7 +60,7 @@ object RobotInfo {
   }
 }
 
-class RobotInfo(val mainInvSize: Int, val slot1: String, val tier1: Int,
+class RobotInfo(var mainInvSize: Int, val slot1: String, val tier1: Int,
     val slot2: String, val tier2: Int, val slot3: String, val tier3: Int,
     val screenBuffer: Option[String], val hasKeyboard: Boolean) {
 
@@ -97,13 +97,16 @@ class Robot(id: Int, playerInventory: Inventory, robot: Container, val info: Rob
 
   // Slot.x and Slot.y are final, so have to rebuild when scrolling
   def generateSlotsFor(scroll: Int): Unit = {
-    val maxRows = math.max(info.mainInvSize / 4, 4)
+    // Reserve the whole 100-slot backing inventory, excluding equipment.
+    // Both sides must keep player slot indices fixed as capacity changes.
+    val maxRows = 24
     for (i <- 0 until maxRows) {
-      val y = 156 + (i - scroll) * slotSize - deltaY
+      val visible = i >= scroll && i < scroll + 4
+      val y = if (visible) 156 + (i - scroll) * slotSize - deltaY else -10000
       for (j <- 0 to 3) {
-        val x = 170 + j * slotSize
+        val x = if (visible) 170 + j * slotSize else -10000
         val idx = 4 + j + 4 * i
-        val slot = new InventorySlot(this, otherInventory, idx, x, y, i >= scroll && i < scroll + 4)
+        val slot = new InventorySlot(this, otherInventory, idx, x, y, visible)
         slot.index = idx
         if (slots.size() <= idx) addSlot(slot)
         else slots.set(idx, slot)
@@ -113,6 +116,17 @@ class Robot(id: Int, playerInventory: Inventory, robot: Container, val info: Rob
   generateSlotsFor(0)
 
   addPlayerInventorySlots(6, 174 - deltaY)
+
+  private val mainInventorySizeData = addDataSlot(new DataSlot {
+    override def get(): Int = robot match {
+      case te: blockentity.Robot => te.mainInventory.getContainerSize
+      case _ => info.mainInvSize
+    }
+
+    override def set(value: Int): Unit = info.mainInvSize = value
+  })
+
+  def mainInventorySize: Int = mainInventorySizeData.get()
 
   // This factor is used to make the energy values transferable using
   // MCs 'progress bar' stuff, even though those internally send the
@@ -170,7 +184,15 @@ class Robot(id: Int, playerInventory: Inventory, robot: Container, val info: Rob
   class InventorySlot(container: AbstractMenu, inventory: Container, index: Int, x: Int, y: Int, enabled: Boolean)
     extends StaticComponentSlot(container, inventory, index, x, y, getHostClass, common.Slot.Any, common.Tier.Any) {
 
-    def isValid: Boolean = getSlotIndex >= 4 && getSlotIndex < 4 + info.mainInvSize
+    def isValid: Boolean = {
+      val inventorySize = mainInventorySize
+      getSlotIndex >= 4 && getSlotIndex < 4 + inventorySize
+    }
+
+    override def mayPlace(stack: ItemStack): Boolean = isValid && super.mayPlace(stack)
+
+    override def mayPickup(player: net.minecraft.world.entity.player.Player): Boolean =
+      isValid && super.mayPickup(player)
 
     @OnlyIn(Dist.CLIENT) override
     def isActive: Boolean = enabled && isValid && super.isActive
@@ -181,8 +203,8 @@ class Robot(id: Int, playerInventory: Inventory, robot: Container, val info: Rob
       else Textures.Icons.get(common.Tier.None)
 
     override def getItem: ItemStack = {
-      if (isValid) super.getItem
-      else ItemStack.EMPTY
+      if (!isValid) ItemStack.EMPTY
+      else Option(super.getItem).getOrElse(ItemStack.EMPTY)
     }
   }
 

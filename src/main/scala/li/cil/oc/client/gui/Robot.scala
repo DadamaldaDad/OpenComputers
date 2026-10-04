@@ -47,11 +47,12 @@ class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
 
   // Scroll offset for robot inventory.
   private var inventoryOffset = 0
+  private var lastInventorySize = inventoryContainer.mainInventorySize
   var isScrolling = false
 
-  private def canScroll = inventoryContainer.info.mainInvSize > 16
+  private def canScroll = inventoryContainer.mainInventorySize > 16
 
-  private def maxOffset = inventoryContainer.info.mainInvSize / 4 - 4
+  private def maxOffset = math.max(0, (inventoryContainer.mainInventorySize + 3) / 4 - 4)
 
   private val slotSize = 18
 
@@ -107,11 +108,19 @@ class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
       ))))
     }
 
+    val inventorySize = inventoryContainer.mainInventorySize
+    if (inventorySize != lastInventorySize) {
+      // Refresh the viewport immediately when the server sends capacity.
+      // As in the legacy GUI, return to the top if shrinking invalidates it.
+      if (inventoryOffset > maxOffset) {
+        isScrolling = false
+        scrollTo(0)
+      }
+      else scrollTo(inventoryOffset)
+      lastInventorySize = inventorySize
+    }
     scrollButton.active = canScroll
     scrollButton.hoverOverride = isScrolling
-    if (inventoryContainer.info.mainInvSize < 16 + inventoryOffset * 4) {
-      if (inventoryOffset != 0) scrollTo(0)
-    }
     super.render(graphics, mouseX, mouseY, dt)
   }
 
@@ -153,7 +162,7 @@ class Robot(state: menu.Robot, playerInventory: Inventory, name: Component)
   override protected def renderBg(graphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int): Unit = {
     graphics.blit(if (buffer != null) Textures.GUI.Robot else Textures.GUI.RobotNoScreen, leftPos, topPos, 0, 0, imageWidth, imageHeight)
 
-    if (inventoryContainer.info.mainInvSize > 0) {
+    if (inventoryContainer.mainInventorySize > 0) {
       drawSelection(graphics)
     }
 
