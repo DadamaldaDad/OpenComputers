@@ -19,7 +19,6 @@ Keep in mind that some of these may not be available, depending on the recipe se
 ## Components
 
 ### Cards
-* [AbstractBus Card](abstractbuscard.md)
 * [Audio Card](audiocard1.md)
 * [Data Card](datacard1.md)
 * [Debug Card](debugCard.md) (aka ami)
@@ -30,7 +29,6 @@ Keep in mind that some of these may not be available, depending on the recipe se
 * [Network Card](lancard.md)
 * [Redstone Card](redstonecard1.md)
 * [Wireless Network Card](wlancard1.md)
-* [World Sensor Card](worldsensorcard.md)
 
 ### Upgrades
 * [Angel Upgrade](angelupgrade.md)
