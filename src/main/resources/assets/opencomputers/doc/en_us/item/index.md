@@ -97,6 +97,12 @@ Keep in mind that some of these may not be available, depending on the recipe se
 * [Microcontroller Case](microcontrollercase1.md)
 * [Tablet Case](tabletcase1.md)
 
+## OpenPrinter
+* [Printer Ink](printerink.md)
+* [Printed Page](printedpage.md)
+* [Folder](folder.md)
+* [Paper Shreds](papershreds.md)
+
 ## Other
 * [Hover Boots](hoverboots.md)
 * [Nanomachines](nanomachines.md)
