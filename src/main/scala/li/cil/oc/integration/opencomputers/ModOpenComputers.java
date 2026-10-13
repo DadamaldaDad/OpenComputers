@@ -65,9 +65,9 @@ public final class ModOpenComputers implements ModProxy {
 
     @Override
     public void initialize() {
-        DroneTemplate$.MODULE$.register();
+        DroneTemplate.register();
         MicrocontrollerTemplate.register();
-        NavigationUpgradeTemplate$.MODULE$.register();
+        NavigationUpgradeTemplate.register();
         RobotTemplate.register();
         ServerTemplate$.MODULE$.register();
         TabletTemplate.register();
