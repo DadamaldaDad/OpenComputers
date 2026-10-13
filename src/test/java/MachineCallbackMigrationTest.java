@@ -52,6 +52,24 @@ public class MachineCallbackMigrationTest {
         assertFalse(callbacks.containsKey("unlisted"));
     }
 
+    @Test
+    public void convertedComponentsRetainInheritedCallbacks() {
+        CallbackAnalyzer analyzer = new CallbackAnalyzer(LogManager.getLogger());
+        assertEquals(java.util.Set.of("detect", "canSeeSky", "isSunVisible", "scan", "analyze", "store"),
+            analyzer.fromClass(li.cil.oc.server.component.Geolyzer.class).keySet());
+
+        java.util.Set<String> wired = java.util.Set.of("open", "close", "isOpen", "isWireless", "isWired",
+            "send", "broadcast", "getWakeMessage", "setWakeMessage");
+        assertEquals(wired, analyzer.fromClass(li.cil.oc.server.component.NetworkCard.class).keySet());
+        java.util.Set<String> wireless = new java.util.HashSet<>(wired);
+        wireless.add("getStrength");
+        wireless.add("setStrength");
+        assertEquals(wireless, analyzer.fromClass(li.cil.oc.server.component.WirelessNetworkCard.Tier1.class).keySet());
+        assertEquals(wireless, analyzer.fromClass(li.cil.oc.server.component.WirelessNetworkCard.Tier2.class).keySet());
+
+        assertEquals(java.util.Set.of("send", "maxPacketSize", "getChannel", "getWakeMessage", "setWakeMessage"),
+            analyzer.fromClass(li.cil.oc.server.component.LinkedCard.class).keySet());
+    }
     public static class LowPriority implements NamedBlock {
         @Override public String preferredName() { return "low"; }
         @Override public int priority() { return 0; }
