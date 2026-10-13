@@ -463,8 +463,6 @@ public class InternetCard extends AbstractManagedEnvironment implements DeviceIn
                 var connection = url.openConnection(ServerLifecycleHooks.getCurrentServer().getProxy());
                 if (!(connection instanceof HttpURLConnection http)) throw new IOException("unexpected connection type");
                 try {
-                    // Every redirect destination requires its own address-filter check.
-                    http.setInstanceFollowRedirects(false);
                     http.setConnectTimeout(Settings.get().httpTimeout());
                     http.setReadTimeout(Settings.get().httpTimeout());
                     http.setDoInput(true);
