@@ -60,12 +60,12 @@ public final class EventHandlerHelper {
     private static <BE extends BlockEntity> void registerOpenComputersCapabilities(
             RegisterCapabilitiesEvent event, BlockEntityType<BE> type) {
         event.registerBlockEntity(
-                li.cil.oc.common.Capabilities.EnvironmentCapability(),
+                li.cil.oc.common.Capabilities.EnvironmentCapability,
                 type,
                 (blockEntity, side) -> blockEntity instanceof Environment environment ? environment : null
         );
         event.registerBlockEntity(
-                li.cil.oc.common.Capabilities.SidedEnvironmentCapability(),
+                li.cil.oc.common.Capabilities.SidedEnvironmentCapability,
                 type,
                 (blockEntity, side) -> {
                     if (blockEntity instanceof SidedEnvironment environment) {
@@ -78,7 +78,7 @@ public final class EventHandlerHelper {
                 }
         );
         event.registerBlockEntity(
-                li.cil.oc.common.Capabilities.ColoredCapability(),
+                li.cil.oc.common.Capabilities.ColoredCapability,
                 type,
                 (blockEntity, side) -> blockEntity instanceof Colored colored ? colored : null
         );
