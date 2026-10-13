@@ -328,12 +328,12 @@ public abstract class DataCard extends AbstractManagedEnvironment implements Dev
     }
 
     public static class ECUserdata extends AbstractValue {
-        private static final String PRIVATE_TYPE = "ec-private";
-        private static final String PUBLIC_TYPE = "ec-public";
-        private static final String ED25519_PRIVATE_TYPE = "ed25519-private";
-        private static final String ED25519_PUBLIC_TYPE = "ed25519-public";
-        private static final String X25519_PRIVATE_TYPE = "x25519-private";
-        private static final String X25519_PUBLIC_TYPE = "x25519-public";
+        public static final String PrivateTypeName = "ec-private";
+        public static final String PublicTypeName = "ec-public";
+        public static final String Ed25519PrivateTypeName = "ed25519-private";
+        public static final String Ed25519PublicTypeName = "ed25519-public";
+        public static final String X25519PrivateTypeName = "x25519-private";
+        public static final String X25519PublicTypeName = "x25519-public";
 
         public Key value;
 
@@ -350,12 +350,12 @@ public abstract class DataCard extends AbstractManagedEnvironment implements Dev
         }
 
         public String keyType() {
-            if (value instanceof ECPublicKey) return PUBLIC_TYPE;
-            if (value instanceof ECPrivateKey) return PRIVATE_TYPE;
-            if (value instanceof EdECPublicKey) return ED25519_PUBLIC_TYPE;
-            if (value instanceof EdECPrivateKey) return ED25519_PRIVATE_TYPE;
-            if (value instanceof XECPublicKey) return X25519_PUBLIC_TYPE;
-            if (value instanceof XECPrivateKey) return X25519_PRIVATE_TYPE;
+            if (value instanceof ECPublicKey) return PublicTypeName;
+            if (value instanceof ECPrivateKey) return PrivateTypeName;
+            if (value instanceof EdECPublicKey) return Ed25519PublicTypeName;
+            if (value instanceof EdECPrivateKey) return Ed25519PrivateTypeName;
+            if (value instanceof XECPublicKey) return X25519PublicTypeName;
+            if (value instanceof XECPrivateKey) return X25519PrivateTypeName;
             throw new IllegalStateException("unsupported key type: " + value.getClass().getName());
         }
 
@@ -392,12 +392,12 @@ public abstract class DataCard extends AbstractManagedEnvironment implements Dev
 
         public static Key deserializeKey(String type, byte[] data) throws Exception {
             return switch (type) {
-                case PRIVATE_TYPE -> KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(data));
-                case PUBLIC_TYPE -> KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(data));
-                case ED25519_PRIVATE_TYPE -> KeyFactory.getInstance("Ed25519").generatePrivate(new PKCS8EncodedKeySpec(data));
-                case ED25519_PUBLIC_TYPE -> KeyFactory.getInstance("Ed25519").generatePublic(new X509EncodedKeySpec(data));
-                case X25519_PRIVATE_TYPE -> KeyFactory.getInstance("X25519").generatePrivate(new PKCS8EncodedKeySpec(data));
-                case X25519_PUBLIC_TYPE -> KeyFactory.getInstance("X25519").generatePublic(new X509EncodedKeySpec(data));
+                case PrivateTypeName -> KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(data));
+                case PublicTypeName -> KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(data));
+                case Ed25519PrivateTypeName -> KeyFactory.getInstance("Ed25519").generatePrivate(new PKCS8EncodedKeySpec(data));
+                case Ed25519PublicTypeName -> KeyFactory.getInstance("Ed25519").generatePublic(new X509EncodedKeySpec(data));
+                case X25519PrivateTypeName -> KeyFactory.getInstance("X25519").generatePrivate(new PKCS8EncodedKeySpec(data));
+                case X25519PublicTypeName -> KeyFactory.getInstance("X25519").generatePublic(new X509EncodedKeySpec(data));
                 default -> throw new IllegalArgumentException("invalid key type, must be one of ec-public, ec-private, ed25519-public, ed25519-private, x25519-public, x25519-private");
             };
         }
