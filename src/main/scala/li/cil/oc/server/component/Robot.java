@@ -17,7 +17,6 @@ import li.cil.oc.api.network.Packet;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.prefab.AbstractManagedEnvironment;
 import li.cil.oc.common.RobotFlags;
-import li.cil.oc.common.RobotFlags$;
 import li.cil.oc.common.ToolDurabilityProviders$;
 import li.cil.oc.common.blockentity.RobotProxy;
 import li.cil.oc.common.datacomponents.OCComponents;
@@ -96,7 +95,7 @@ public class Robot extends AbstractManagedEnvironment implements Agent, DeviceIn
     public Object[] getFlag(Context context, Arguments args) {
         scala.Option<ResourceLocation> current = agent.info().flag();
         if (current.isDefined()) {
-            scala.Option<RobotFlags.Flag> flag = RobotFlags$.MODULE$.byId(current.get());
+            scala.Option<RobotFlags.Flag> flag = RobotFlags.byId(current.get());
             if (flag.isDefined()) return ResultWrapper.result(flag.get().name());
         }
         return ResultWrapper.result((Object) null);
@@ -104,7 +103,7 @@ public class Robot extends AbstractManagedEnvironment implements Agent, DeviceIn
 
     @Callback(doc = "function(name:string):string -- Sets the displayed pride flag and returns its canonical name.")
     public Object[] setFlag(Context context, Arguments args) {
-        scala.Option<RobotFlags.Flag> flag = RobotFlags$.MODULE$.byName(args.checkString(0));
+        scala.Option<RobotFlags.Flag> flag = RobotFlags.byName(args.checkString(0));
         if (flag.isDefined()) {
             agent.setFlag(scala.Option.apply(flag.get().id()));
             context.pause(0.1);
