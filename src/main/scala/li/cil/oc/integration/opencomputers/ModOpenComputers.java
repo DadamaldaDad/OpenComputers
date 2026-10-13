@@ -68,7 +68,7 @@ public final class ModOpenComputers implements ModProxy {
         DroneTemplate$.MODULE$.register();
         MicrocontrollerTemplate$.MODULE$.register();
         NavigationUpgradeTemplate$.MODULE$.register();
-        RobotTemplate$.MODULE$.register();
+        RobotTemplate.register();
         ServerTemplate$.MODULE$.register();
         TabletTemplate$.MODULE$.register();
         TemplateBlacklist$.MODULE$.register();
