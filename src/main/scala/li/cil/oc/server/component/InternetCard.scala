@@ -559,10 +559,6 @@ object InternetCard {
         val proxy = ServerLifecycleHooks.getCurrentServer.proxy
         url.openConnection(proxy) match {
           case http: HttpURLConnection => try {
-            // Redirect destinations must be checked just like the original URL.
-            // Do not let HttpURLConnection silently follow a redirect to a
-            // private or otherwise blocked address.
-            http.setInstanceFollowRedirects(false)
             http.setConnectTimeout(Settings.get.httpTimeout)
             http.setReadTimeout(Settings.get.httpTimeout)
             http.setDoInput(true)
