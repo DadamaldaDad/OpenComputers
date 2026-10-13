@@ -69,9 +69,9 @@ public final class ModOpenComputers implements ModProxy {
         MicrocontrollerTemplate.register();
         NavigationUpgradeTemplate.register();
         RobotTemplate.register();
-        ServerTemplate$.MODULE$.register();
+        ServerTemplate.register();
         TabletTemplate.register();
-        TemplateBlacklist$.MODULE$.register();
+        TemplateBlacklist.register();
 
         IMC.registerWrenchTool("li.cil.oc.integration.opencomputers.ModOpenComputers.useWrench");
         IMC.registerWrenchToolCheck("li.cil.oc.integration.opencomputers.ModOpenComputers.isWrench");
