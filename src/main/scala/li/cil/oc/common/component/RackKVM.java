@@ -23,10 +23,10 @@ import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.util.Lifecycle;
 import li.cil.oc.api.util.StateAware;
 import li.cil.oc.common.Tier;
-import li.cil.oc.common.component.TerminalServer$;
 import li.cil.oc.common.datacomponents.CompoundStorage;
 import li.cil.oc.common.datacomponents.OCComponents$;
 import li.cil.oc.common.datacomponents.TerminalReference;
+import li.cil.oc.util.ExtendedDataComponentHolder;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponentPatch;
@@ -114,7 +114,8 @@ public class RackKVM implements Environment, EnvironmentHost, Analyzable, RackMo
 
     @Override public Seq<String> sidedKeys() {
         if (!rack.getEnvironmentLevel().isClientSide()) return keys;
-        return (Seq<String>) rack.getMountableData(slot).get((DataComponentType<List<String>>) (DataComponentType<?>) OCComponents$.MODULE$.KEYS().get());
+        Option<List<String>> clientKeys = ExtendedDataComponentHolder.convert(rack.getMountableData(slot)).getComponent((DataComponentType<List<String>>) (DataComponentType<?>) OCComponents$.MODULE$.KEYS().get());
+        return clientKeys.isDefined() ? clientKeys.get() : List$.MODULE$.empty();
     }
 
     public int selectedRackSlot() {
@@ -312,7 +313,7 @@ public class RackKVM implements Environment, EnvironmentHost, Analyzable, RackMo
 
     @Override public void onLifecycleStateChange(Lifecycle.LifecycleState state) {
         if (!rack.getEnvironmentLevel().isClientSide()) return;
-        if (state == Lifecycle.LifecycleState.Initialized) TerminalServer$.MODULE$.loaded().add(this);
-        else if (state == Lifecycle.LifecycleState.Disposed) TerminalServer$.MODULE$.loaded().remove(this);
+        if (state == Lifecycle.LifecycleState.Initialized) TerminalServer.loaded.add(this);
+        else if (state == Lifecycle.LifecycleState.Disposed) TerminalServer.loaded.remove(this);
     }
 }
