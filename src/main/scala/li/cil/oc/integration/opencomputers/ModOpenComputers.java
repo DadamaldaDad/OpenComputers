@@ -66,11 +66,11 @@ public final class ModOpenComputers implements ModProxy {
     @Override
     public void initialize() {
         DroneTemplate$.MODULE$.register();
-        MicrocontrollerTemplate$.MODULE$.register();
+        MicrocontrollerTemplate.register();
         NavigationUpgradeTemplate$.MODULE$.register();
         RobotTemplate.register();
         ServerTemplate$.MODULE$.register();
-        TabletTemplate$.MODULE$.register();
+        TabletTemplate.register();
         TemplateBlacklist$.MODULE$.register();
 
         IMC.registerWrenchTool("li.cil.oc.integration.opencomputers.ModOpenComputers.useWrench");
