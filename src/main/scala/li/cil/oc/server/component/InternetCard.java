@@ -55,6 +55,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class InternetCard extends AbstractManagedEnvironment implements DeviceInfo {
+    private static final int MAX_HTTP_REDIRECTS = 10;
     protected Context owner;
     protected final Set<Closable> connections = new HashSet<>();
 
@@ -459,31 +460,64 @@ public class InternetCard extends AbstractManagedEnvironment implements DeviceIn
 
         private InputStream sendRequest(URL url, String post, Map<String, String> headers, String method, boolean allowErrorBody) throws IOException {
             try {
-                checkLists(InetAddress.getByName(url.getHost()), url.getHost());
-                var connection = url.openConnection(ServerLifecycleHooks.getCurrentServer().getProxy());
-                if (!(connection instanceof HttpURLConnection http)) throw new IOException("unexpected connection type");
-                try {
-                    // Every redirect destination requires its own address-filter check.
-                    http.setInstanceFollowRedirects(false);
-                    http.setConnectTimeout(Settings.get().httpTimeout());
-                    http.setReadTimeout(Settings.get().httpTimeout());
-                    http.setDoInput(true);
-                    http.setDoOutput(post != null);
-                    http.setRequestMethod(method != null ? method : post != null ? "POST" : "GET");
-                    http.setRequestProperty("User-Agent", Settings.get().httpUserAgent().replace("$version", OpenComputers.Version()));
-                    headers.forEach(http::setRequestProperty);
-                    if (post != null) {
-                        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(http.getOutputStream()))) { output.write(post); }
+                URL currentUrl = url;
+                String currentMethod = method != null ? method : post != null ? "POST" : "GET";
+                String currentPost = post;
+                Map<String, String> currentHeaders = new HashMap<>(headers);
+                for (int redirects = 0; ; redirects++) {
+                    checkLists(InetAddress.getByName(currentUrl.getHost()), currentUrl.getHost());
+                    var connection = currentUrl.openConnection(ServerLifecycleHooks.getCurrentServer().getProxy());
+                    if (!(connection instanceof HttpURLConnection http)) throw new IOException("unexpected connection type");
+                    try {
+                        http.setInstanceFollowRedirects(false);
+                        http.setConnectTimeout(Settings.get().httpTimeout());
+                        http.setReadTimeout(Settings.get().httpTimeout());
+                        http.setDoInput(true);
+                        http.setDoOutput(currentPost != null);
+                        http.setRequestMethod(currentMethod);
+                        http.setRequestProperty("User-Agent", Settings.get().httpUserAgent().replace("$version", OpenComputers.Version()));
+                        currentHeaders.forEach(http::setRequestProperty);
+                        if (currentPost != null) {
+                            try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(http.getOutputStream()))) { output.write(currentPost); }
+                        }
+
+                        int code = http.getResponseCode();
+                        String location = http.getHeaderField("Location");
+                        if (!isRedirect(code) || location == null || location.isBlank()) {
+                            synchronized (this) { response = new HttpResponse(code, http.getResponseMessage(), http.getHeaderFields()); }
+                            return responseStream(http, allowErrorBody);
+                        }
+                        if (redirects >= MAX_HTTP_REDIRECTS) throw new IOException("too many redirects");
+
+                        URL nextUrl = new URL(currentUrl, location);
+                        if (!currentUrl.getProtocol().equalsIgnoreCase(nextUrl.getProtocol()) ||
+                            !currentUrl.getHost().equalsIgnoreCase(nextUrl.getHost()) || effectivePort(currentUrl) != effectivePort(nextUrl)) {
+                            currentHeaders.keySet().removeIf(name -> name.equalsIgnoreCase("Authorization") ||
+                                name.equalsIgnoreCase("Cookie") || name.equalsIgnoreCase("Cookie2"));
+                        }
+                        if (code == HttpURLConnection.HTTP_SEE_OTHER && !currentMethod.equalsIgnoreCase("HEAD") ||
+                            (code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP) &&
+                                !currentMethod.equalsIgnoreCase("GET") && !currentMethod.equalsIgnoreCase("HEAD")) {
+                            currentMethod = "GET";
+                            currentPost = null;
+                        }
+                        currentUrl = nextUrl;
                     }
-                    try { http.getInputStream(); }
-                    catch (Exception ignored) {}
-                    synchronized (this) { response = new HttpResponse(http.getResponseCode(), http.getResponseMessage(), http.getHeaderFields()); }
-                    return responseStream(http, allowErrorBody);
+                    catch (Throwable error) { http.disconnect(); throw error; }
+                    http.disconnect();
                 }
-                catch (Throwable error) { http.disconnect(); throw error; }
             }
             catch (UnknownHostException error) { throw new IOException("unknown host: " + (error.getMessage() != null ? error.getMessage() : error.toString())); }
             catch (Throwable error) { throw new IOException(error.getMessage() != null ? error.getMessage() : error.toString()); }
+        }
+
+        private static boolean isRedirect(int code) {
+            return code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP ||
+                code == HttpURLConnection.HTTP_SEE_OTHER || code == 300 || code == 307 || code == 308;
+        }
+
+        private static int effectivePort(URL url) {
+            return url.getPort() != -1 ? url.getPort() : url.getDefaultPort();
         }
 
         private record HttpResponse(int code, String message, Object headers) {}
