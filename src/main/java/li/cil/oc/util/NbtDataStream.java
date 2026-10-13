@@ -12,30 +12,30 @@ public final class NbtDataStream {
     private NbtDataStream() {
     }
 
-    public static boolean getShortArray(CompoundTag nbt, String key, short[][] array, int width, int height)
+    public static boolean getIntArray(CompoundTag nbt, String key, int[][] array, int width, int height)
         throws IOException {
         if (!nbt.contains(key)) return false;
 
         DataInputStream input = new DataInputStream(new ByteArrayInputStream(nbt.getByteArray(key)));
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (input.available() < Short.BYTES) return true;
-                array[y][x] = input.readShort();
+                if (input.available() < Integer.BYTES) return true;
+                array[y][x] = input.readInt();
             }
         }
         return true;
     }
 
-    public static boolean getIntArrayLegacy(CompoundTag nbt, String key, short[][] array, int width, int height) {
+    public static boolean getIntArrayLegacy(CompoundTag nbt, String key, int[][] array, int width, int height) {
         if (!nbt.contains(key)) return false;
 
         int[] colors = nbt.getIntArray(key);
         for (int y = 0; y < height; y++) {
-            short[] row = array[y];
+            int[] row = array[y];
             for (int x = 0; x < width; x++) {
                 int index = x + y * width;
                 if (index >= colors.length) return true;
-                row[x] = (short) colors[index];
+                row[x] = (int) colors[index];
             }
         }
         return true;
