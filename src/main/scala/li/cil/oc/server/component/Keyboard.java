@@ -52,8 +52,8 @@ public class Keyboard extends AbstractManagedEnvironment implements li.cil.oc.ap
         Map<Integer, Character> keys = pressedKeys.get(player);
         if (keys != null) {
             for (Map.Entry<Integer, Character> key : keys.entrySet()) {
-                if (Settings.get().inputUsername()) signal("key_up", key.getValue(), key.getKey(), player.getName().getString());
-                else signal("key_up", key.getValue(), key.getKey());
+                if (Settings.get().inputUsername()) signal(player, "key_up", key.getValue(), key.getKey(), player.getName().getString());
+                else signal(player, "key_up", key.getValue(), key.getKey());
             }
         }
         pressedKeys.remove(player);
@@ -66,8 +66,8 @@ public class Keyboard extends AbstractManagedEnvironment implements li.cil.oc.ap
                 && data[0] instanceof Player player && data[1] instanceof Character character && data[2] instanceof Integer code) {
             if (isUsableByPlayer(player)) {
                 pressedKeys.computeIfAbsent(player, ignored -> new HashMap<>()).put(code, character);
-                if (Settings.get().inputUsername()) signal("key_down", character, code, player.getName().getString());
-                else signal("key_down", character, code);
+                if (Settings.get().inputUsername()) signal(player, "key_down", character, code, player.getName().getString());
+                else signal(player, "key_down", character, code);
             }
         }
         else if ("keyboard.keyUp".equals(message.name()) && data.length == 3
@@ -75,24 +75,24 @@ public class Keyboard extends AbstractManagedEnvironment implements li.cil.oc.ap
             Map<Integer, Character> keys = pressedKeys.get(player);
             if (keys != null && keys.containsKey(code)) {
                 keys.remove(code);
-                if (Settings.get().inputUsername()) signal("key_up", character, code, player.getName().getString());
-                else signal("key_up", character, code);
+                if (Settings.get().inputUsername()) signal(player, "key_up", character, code, player.getName().getString());
+                else signal(player, "key_up", character, code);
             }
         }
         else if ("keyboard.textInput".equals(message.name()) && data.length == 2
                 && data[0] instanceof Player player && data[1] instanceof Integer codePoint) {
             if (isUsableByPlayer(player)) {
                 String text = new String(Character.toChars(codePoint));
-                if (Settings.get().inputUsername()) signal("text_input", text, player.getName().getString());
-                else signal("text_input", text);
+                if (Settings.get().inputUsername()) signal(player, "text_input", text, player.getName().getString());
+                else signal(player, "text_input", text);
             }
         }
         else if ("keyboard.clipboard".equals(message.name()) && data.length == 2
                 && data[0] instanceof Player player && data[1] instanceof String value) {
             if (isUsableByPlayer(player)) {
                 if (!value.isEmpty()) for (String line : value.split("(?<=\\R)")) {
-                    if (Settings.get().inputUsername()) signal("clipboard", line, player.getName().getString());
-                    else signal("clipboard", line);
+                    if (Settings.get().inputUsername()) signal(player, "clipboard", line, player.getName().getString());
+                    else signal(player, "clipboard", line);
                 }
             }
         }
