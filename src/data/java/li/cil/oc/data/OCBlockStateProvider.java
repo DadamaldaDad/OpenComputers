@@ -75,7 +75,7 @@ public class OCBlockStateProvider extends BlockStateProvider {
         var projectorModel = existingModel(OCBlocks.Projector().get());
         getVariantBuilder(OCBlocks.Projector().get()).forAllStates(state -> ConfiguredModel.builder()
             .modelFile(projectorModel)
-            .rotationY(getYRotation(state.getValue(PropertyRotatable.Facing())))
+            .rotationY(getYRotation(state.getValue(PropertyRotatable.Facing)))
             .build());
         simpleBlockItem(OCBlocks.Projector().get(), projectorModel);
 
@@ -164,7 +164,7 @@ public class OCBlockStateProvider extends BlockStateProvider {
     private void caseBlock(Block block) {
         var model = models().getExistingFile(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID(), "case"));
         var runningModel = models().getExistingFile(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID(), "case_running"));
-        horizontalBlock(block, s -> s.getValue(PropertyRunning.Running()) ? runningModel : model);
+        horizontalBlock(block, s -> s.getValue(PropertyRunning.Running) ? runningModel : model);
         simpleBlockItem(block, model);
     }
 
@@ -193,8 +193,8 @@ public class OCBlockStateProvider extends BlockStateProvider {
         var model = models().getExistingFile(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID(), "screen"));
         getVariantBuilder(block).forAllStates(state -> ConfiguredModel.builder()
             .modelFile(model)
-            .rotationY(getInvYRotation(state.getValue(PropertyRotatable.Yaw())))
-            .rotationX(getXRotation(state.getValue(PropertyRotatable.Pitch())))
+            .rotationY(getInvYRotation(state.getValue(PropertyRotatable.Yaw)))
+            .rotationX(getXRotation(state.getValue(PropertyRotatable.Pitch)))
             .build()
         );
         simpleBlockItem(block, model);
@@ -203,8 +203,8 @@ public class OCBlockStateProvider extends BlockStateProvider {
     private void flatScreenBlock(Block block) {
         var model = existingModel(block);
         getVariantBuilder(block).forAllStates(state -> {
-                var pitch = state.getValue(PropertyRotatable.Pitch());
-                var yaw = state.getValue(PropertyRotatable.Yaw());
+                var pitch = state.getValue(PropertyRotatable.Pitch);
+                var yaw = state.getValue(PropertyRotatable.Yaw);
                 return ConfiguredModel.builder()
                     .modelFile(model)
                     .rotationY(pitch == Direction.DOWN ? getInvYRotation(yaw) : getYRotation(yaw))
@@ -219,8 +219,8 @@ public class OCBlockStateProvider extends BlockStateProvider {
         var model = existingModel(block);
         getVariantBuilder(block).forAllStates(state -> ConfiguredModel.builder()
             .modelFile(model)
-            .rotationY(getYRotation(state.getValue(PropertyRotatable.Facing())))
-            .rotationX(state.getValue(PropertyRotatable.Mount()) == Direction.DOWN ? 180 : 0)
+            .rotationY(getYRotation(state.getValue(PropertyRotatable.Facing)))
+            .rotationX(state.getValue(PropertyRotatable.Mount) == Direction.DOWN ? 180 : 0)
             .build()
         );
         simpleBlockItem(block, model);
@@ -230,8 +230,8 @@ public class OCBlockStateProvider extends BlockStateProvider {
         var block = OCBlocks.Keyboard().get();
         var model = existingModel(block);
         getVariantBuilder(block).forAllStates(state -> {
-            var yaw = state.getValue(PropertyRotatable.Yaw());
-            var pitch = state.getValue(PropertyRotatable.Pitch());
+            var yaw = state.getValue(PropertyRotatable.Yaw);
+            var pitch = state.getValue(PropertyRotatable.Pitch);
             return ConfiguredModel.builder()
                 .modelFile(model)
                 .rotationY(getYRotation(yaw, pitch == Direction.NORTH ? 180 : 0))
@@ -248,8 +248,8 @@ public class OCBlockStateProvider extends BlockStateProvider {
         );
         getVariantBuilder(block).forAllStates(state -> ConfiguredModel.builder()
             .modelFile(model)
-            .rotationY(getYRotation(state.getValue(PropertyRotatable.Yaw())))
-            .rotationX(-getXRotation(state.getValue(PropertyRotatable.Pitch())))
+            .rotationY(getYRotation(state.getValue(PropertyRotatable.Yaw)))
+            .rotationX(-getXRotation(state.getValue(PropertyRotatable.Pitch)))
             .build());
 
         simpleBlockItem(block, model);

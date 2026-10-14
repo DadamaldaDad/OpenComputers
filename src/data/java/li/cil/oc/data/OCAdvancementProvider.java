@@ -18,18 +18,17 @@ class OCAdvancementProvider implements AdvancementProvider.AdvancementGenerator 
     @Override
     public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
         Map<String, AdvancementHolder> advancements = new HashMap<>();
-        Advancements.Definitions().foreach(definition -> {
+        for (Advancements.Definition definition : Advancements.Definitions) {
             var advancement = generateDefinition(definition, advancements);
             saver.accept(advancement);
             advancements.put(definition.name(), advancement);
-            return null;
-        });
+        }
     }
 
     private AdvancementHolder generateDefinition(Advancements.Definition definition, Map<String, AdvancementHolder> advancements) {
         var advancement = new Advancement.Builder();
-        if (definition.parent().isDefined()) {
-            advancement.parent(advancements.get(definition.parent().get()));
+        if (definition.parent() != null) {
+            advancement.parent(advancements.get(definition.parent()));
         }
 
         advancement.display(
@@ -53,10 +52,9 @@ class OCAdvancementProvider implements AdvancementProvider.AdvancementGenerator 
         return advancement.build(definition.location());
     }
 
-    private void addManualCriteria(Advancement.Builder advancement, String prefix, scala.collection.Seq<String> items) {
-        items.foreach(item -> {
+    private void addManualCriteria(Advancement.Builder advancement, String prefix, java.util.List<String> items) {
+        for (String item : items) {
             advancement.addCriterion(prefix + "_" + item, CriteriaTriggers.IMPOSSIBLE.createCriterion(new ImpossibleTrigger.TriggerInstance()));
-            return null;
-        });
+        }
     }
 }
