@@ -38,6 +38,10 @@ import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.TextBufferProxy with VideoRamRasterizer with DeviceInfo {
+  private val videoRamDeviceMap = new java.util.HashMap[String, traits.VideoRamDevice]()
+
+  override def videoRamDevices: java.util.Map[String, traits.VideoRamDevice] = videoRamDeviceMap
+
   override val node = api.Network.newNode(this, Visibility.Network).
     withComponent("screen").
     withConnector().

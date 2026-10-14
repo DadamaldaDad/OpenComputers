@@ -35,6 +35,10 @@ import scala.util.matching.Regex
 // the save file - a Bad Thing (TM).
 
 class GraphicsCard(val tier: Int, val vramScreens: Option[Double] = None, val visibility: Visibility = Visibility.Neighbors) extends AbstractManagedEnvironment with DeviceInfo with component.traits.VideoRamDevice {
+  private val videoRamBufferMap = new java.util.HashMap[Integer, component.GpuTextBuffer]()
+
+  override def videoRamBuffers: java.util.Map[Integer, component.GpuTextBuffer] = videoRamBufferMap
+
   override val node = Network.newNode(this, visibility).
     withComponent("gpu").
     withConnector().
@@ -123,7 +127,7 @@ class GraphicsCard(val tier: Int, val vramScreens: Option[Double] = None, val vi
 
   private def resolveInvokeCosts(idx: Int, context: Context, budgetCost: Double, units: Int, factor: Double): Boolean = {
     idx match {
-      case RESERVED_SCREEN_INDEX =>
+      case 0 => // the screen is reserved at buffer index zero
         context.consumeCallBudget(budgetCost)
         consumePower(units, factor)
       case _ => true
